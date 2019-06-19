@@ -1,0 +1,10 @@
+{
+  "prerun": "# some code here",
+  "directory": "migrations",
+  "history": "migratehistory",
+  "models": [
+    "models.Customer",
+    "models.Plan",
+    "models.Website"
+  ]
+}
