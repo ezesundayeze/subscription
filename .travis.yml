@@ -7,4 +7,4 @@ python:
   - "3.6"
 
 script:
-  - python unit_tests.py
+  - python test_subscription.py
