@@ -8,15 +8,16 @@ class CustomerEntity:
     """
 
     def __init__(self, _name, _password, _email,  _plan, _renewal_date):
-        self.name = _name
+        self.name = _name.lower()
         self.password = _password
-        self.email = _email
+        self.email = _email.lower()
         self.plan = _plan
         self.renewal_date = _renewal_date
 
     def create(self):
         try:
-            customer = Customer.create(name=self.name, password=self.password, email_address=self.email, plan=self.plan, renewal_date=self.renewal_date)
+            plan = Plan.get(id=self.plan)
+            customer = Customer.create(name=self.name, password=self.password, email_address=self.email, plan=plan.id, renewal_date=self.renewal_date)
             customer.save()
         except IntegrityError:
             
@@ -36,11 +37,14 @@ class CustomerEntity:
     def upgrade(self):
         try:
             customer = Customer.get(email_address=self.email)
-        except DoesNotExist:
-            return {"message":"Customer does not exist"}
-
+            plan = Plan.get(id=self.plan)
+        except (Customer.DoesNotExist, Plan.DoesNotExist,):
+            if Customer.DoesNotExist:
+                return {"message":"Customer does not exist"}
+            if Plan.DoesNotExist:
+                return {"message":"Plan does not exist"}
         else:
-            customer = Customer.update(plan=self.plan, renewal_date=self.renewal_date).where(Customer.email_address==self.email)
+            customer = Customer.update(plan=plan.id, renewal_date=self.renewal_date).where(Customer.email_address==self.email)
             customer.execute()
             return  {"message":"Your plan has been upgraded Successfully"}
 
@@ -48,7 +52,7 @@ class CustomerEntity:
 class WebsiteEntity:
 
     def __init__(self, _url, _customer):
-        self.url =_url
+        self.url =_url.lower()
         self.customer = _customer
 
     def create(self):
@@ -82,7 +86,7 @@ class WebsiteEntity:
     def delete(self):
         try:
             Website.get(url=self.url)
-            if Website.delete().where(Website.customer==self.customer).execute():
+            if Website.delete().where((Website.customer==self.customer) and (Website.url==self.url)).execute():
                 return {"message":"Website deleted successfully"}
         except DoesNotExist:
             if DoesNotExist:
@@ -106,22 +110,35 @@ class PlanEntity:
     def __init__(self, _name, _price, _quantity):
         self.price = _price
         self.quantity = _quantity
-        self.name = _name
+        self.name = _name.lower()
     
 
     def create(self):
         try:
             plan = Plan.create(name=self.name, price=self.price, quantity=self.quantity)
             plan.save()
+            return {"message":"Plan created successfully"}
         except IntegrityError:
             return {"message":"Plan already exist"}
 
     def delete(self):
-        pass
+        try:
+            plan = Plan.delete().where(Plan.name==self.name)
+            plan.execute()
+            return {"message":"Plan deleted successfully"}
+        except DoesNotExist:
+            return {"message":"Plan does not exist"}
 
     def update(self):
-        plan = Plan.update(name=self.name, price=self.price, quantity=self.quantity).where(Plan.name==self.name)
-        plan.execute()
+        try:
+            get_plan = Plan.get(name=self.name)
+            plan = Plan.update(name=self.name, price=self.price, quantity=self.quantity).where(Plan.name==get_plan.name)
+            plan.execute()
+            return {"message":"Plan updated successfully"}
+        except Plan.DoesNotExist:
+            if Plan.DoesNotExist:
+                return {"message":"Plan does not exist"}
+
 
 def expire_plan():
     """
@@ -131,68 +148,9 @@ def expire_plan():
     for customer in customers:
         if customer.renewal_date >= datetime.datetime.now():
             Customer.update(renewal_date=None).where(Customer.renewal_date==customer.renewal_date).execute()
-            print("expired")
-            return {"message":"Expired on"}
-
-
-
-
-""" 
-A user selects a plan and then will be asked to provide further information to create his account and to complete his susbcription
-"""
-
-"""
-The input here will generally be either from a select input tag or any other ui element that willl be populated from the database
-However, for this test, I am allowing the user to type the name of the plan by hand.
-"""
-
-# def create_customer():
-#     package = input("Choose a Package: single, plus or infinite:")
-#     try:
-#         plan =  Plan.get(name=package)
-#     except DoesNotExist:
-#         return {"message":"The package you selected does not exist"}
-#     else:
-#         customer =  CustomerEntity("Eze Sunday", "naira123?", "mailstoeze@gmail.com", plan.id, "2020-02-21 06:35:45.658505" )
-#         create = customer.create()
-#         print(create["message"])
-
-# def delete_customer():
-#     customer =  CustomerEntity("Eze Sunday", "naira123?", "mailstoeze@gmail.com", 5, "2020-02-21 06:35:45.658505" )
-#     delete = customer.delete()
-#     print(delete["message"])
-
-
-# def upgrade_plan():
-#     package = input("Choose a Package: single, plus or infinite:")
-#     try:
-#         plan =  Plan.get(name=package)
-#     except DoesNotExist:
-#         print("The package you selected does not exist")
-#     else:
-#         customer =  CustomerEntity("Eze Sunday", "naira123?", "mailstoeze@gmail.com", plan.id, "2030-02-21 06:35:45.658505" )
-#         upgrade = customer.upgrade()
-#         print(upgrade["message"])
-
-
-# def delete_website():
-#     website = WebsiteEntity("eze.com", 1)
-#     delete = website.delete()
-#     print(delete["message"])
-
-# website = WebsiteEntity("eze.com", 2)
-# update = website.create()
-# print(update["message"])
-
-
-# plan = PlanEntity("booster", 89, 5)
-# create = plan.create()
-# print(create["message"])
-
-# customer = CustomerEntity("Bassey", "naira123?", "mailsforeze@gmail.com", 5, "2020-02-21 06:35:45.658505")
-# print(customer.create())
-
-
+            return {"message":"Plan expired"}
+        else:
+            return {"message":"All plans are active"}
 
 
 

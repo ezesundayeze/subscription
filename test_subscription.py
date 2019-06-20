@@ -31,16 +31,60 @@ class DeleteCustomerTest(unittest.TestCase):
 
 class CreateWebsiteTest(unittest.TestCase):
     def setUp(self):
-        self.website = WebsiteEntity("google.com", 1)
+        self.website = WebsiteEntity("eze.com", 1)
 
-    def test_create_customer(self):
+    def test_create_website(self):
         self.assertEqual("Website created successfully", self.website.create()["message"])
 
     def tearDown(self):
         self.website.delete()
 
-    
+class UpdateWebsiteTest(unittest.TestCase):
+    def setUp(self):
+        self.website = WebsiteEntity("google.com", 1)
 
+    def test_update_website(self):
+        self.assertEqual("Wesite updated successfully", self.website.update()["message"] )
+
+
+class DeleteWebsiteTest(unittest.TestCase):
+    def setUp(self):
+        self.website = WebsiteEntity("yahoo.com", 1)
+        self.website.create()
+
+    def test_delete_website(self):
+        self.assertEqual("Website deleted successfully", self.website.delete()["message"])
+
+
+class CreatePlanTest(unittest.TestCase):
+    def setUp(self):
+        self.plan = PlanEntity("Silver", 57, 7)
+
+    def test_create_plan(self):
+        self.assertEqual("Plan created successfully", self.plan.create()["message"])
+
+    def tearDown(self):
+        self.plan.delete()
+
+
+class UpdatePlanTest(unittest.TestCase):
+    def setUp(self):
+        self.plan = PlanEntity("gold", 57, 7)
+
+    def test_update_plan(self):
+        self.assertEqual("Plan updated successfully", self.plan.update()["message"] )
+
+class DeletePlanTest(unittest.TestCase):
+    def setUp(self):
+        self.plan = PlanEntity("silver", 57, 7)
+        self.plan.create()
+    
+    def test_deletePlan(self):
+        self.assertEqual("Plan deleted successfully", self.plan.delete()["message"])
+
+    
+class ExpirePlanTest(unittest.TestCase):
+    
 
 
 

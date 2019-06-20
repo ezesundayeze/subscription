@@ -1,4 +1,4 @@
-from peewee import *
+from peewee import MySQLDatabase, Model, CharField, DecimalField, IntegerField, ForeignKeyField, DateTimeField
 
 
 database = MySQLDatabase('imagify1', **{'charset': 'utf8', 'use_unicode': True, 'host': 'localhost', 'user': 'eze', 'passwd': '.Naira123?'})
