@@ -82,31 +82,6 @@ class DeletePlanTest(unittest.TestCase):
     def test_deletePlan(self):
         self.assertEqual("Plan deleted successfully", self.plan.delete()["message"])
 
-    
-
-
-
-
-
-
-        
-
 
             
-
-
-        
-
-    # def test_upgrade_customer(self):
-    #     customer = CustomerEntity("Eze Sunday", "naira123?", "mailstoeze@gmail.com", 5, "2020-02-21 06:35:45.658505")
-    #     customer.upgrade()
-
-    # def test_delete_customer(self):
-    #     customer = CustomerEntity("Eze Sunday", "naira123?", "mailstoeze@gmail.co9  m", 5, "2020-02-21 06:35:45.658505")
-    #     customer.delete()
-
-class PlanTest(unittest.TestCase):
-    pass
-
-
 
