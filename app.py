@@ -1,7 +1,7 @@
 from models import Customer, Plan, Website
 import datetime
 from peewee import DoesNotExist, IntegrityError
-
+import re
 class CustomerEntity:
     """ 
     This class allows the customer to manage their account, create their account, delete their account, and upgrade or downgrade their account and plan
@@ -50,38 +50,48 @@ class CustomerEntity:
 
 
 class WebsiteEntity:
+    """ 
+    This allows the user to create websites according to their plan
+    """
+
 
     def __init__(self, _url, _customer):
         self.url =_url.lower()
         self.customer = _customer
+        self.pattern = "^(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)?[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$"
+
 
     def create(self):
         """ check customers plan and limit them to the number of website that's accordigng to their plan"""
         "check customers plan, check customers website count"
-        try:
-            customer = Customer.get(id=self.customer)
-        except DoesNotExist:
-            return {"message":"Customer does not exist"}
+
         
-        website_count = Website.select().where(Website.url==self.url).count()
-        if customer.plan.quantity != 0 and customer.plan.quantity > website_count and customer.renewal_date!=None:
-            website =  Website(url=self.url, customer=self.customer)
-            website.save()
-            message = "Website created successfully"
-            return {"message":message}
+        if re.match(self.pattern, self.url, flags=0):
+            try:
+                customer = Customer.get(id=self.customer)
+            except DoesNotExist:
+                return {"message":"Customer does not exist"}
+            
+            website_count = Website.select().where(Website.customer==customer.id).count()
+            if customer.plan.quantity != 0 and customer.plan.quantity > website_count and customer.renewal_date!=None:
+                website =  Website(url=self.url, customer=self.customer)
+                website.save()
+                message = "Website created successfully"
+                return {"message":message}
 
-        if customer.plan.quantity==0 and customer.renewal_date!=None:
-            website =  Website(url=self.url, customer=self.customer)
-            website.save()
-            message = "Website created successfully"
-            print("hi")
-            return {"message":message}
+            if customer.plan.quantity==0 and customer.renewal_date!=None:
+                website =  Website(url=self.url, customer=self.customer)
+                website.save()
+                message = "Website created successfully"
+                return {"message":message}
 
-        if customer.renewal_date==None:
-            return {"message":"Sorry, your plan has expired" }
+            if customer.renewal_date==None:
+                return {"message":"Sorry, your plan has expired" }
 
+            else:
+                return {"message":"Sorry, you can't add more websites, your have exceeded your subscription limit"}
         else:
-            return {"message":"Sorry, you can't add more websites, your have exceeded your subscription limit"}
+            return {"message":"Invalid website"}
 
     def delete(self):
         try:
