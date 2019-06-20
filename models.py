@@ -20,7 +20,7 @@ class Plan(BaseModel):
 class Customer(BaseModel):
     name = CharField(max_length=300)
     password = CharField(max_length=300)
-    email_address = CharField(max_length=300, default="hello@gmail.com", unique=True)
+    email_address = CharField(max_length=300, unique=True)
     plan = ForeignKeyField(Plan, backref='plan',
                                     column_name='plan', null=True)
     renewal_date = DateTimeField(null=True)
@@ -31,7 +31,7 @@ class Customer(BaseModel):
 
 class Website(BaseModel):
     url = CharField(default="example.com", max_length=300)
-    customer = ForeignKeyField(Customer, backref="customer", column_name="customer", default=1)
+    customer = ForeignKeyField(Customer, backref="customer", column_name="customer", default=1, on_delete="CASCADE")
 
     class Meta:
         table_name = 'website'

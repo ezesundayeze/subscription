@@ -16,10 +16,13 @@ class CustomerEntity:
 
     def create(self):
         try:
-            customer = Customer.create(name=self.name, password=self.password, email=self.email, plan=self.plan, renewal_date=self.renewal_date)
+            customer = Customer.create(name=self.name, password=self.password, email_address=self.email, plan=self.plan, renewal_date=self.renewal_date)
             customer.save()
         except IntegrityError:
-            return {"message":"Customer already exist"}        
+            
+            return {"message":"Customer already exist"}
+        else:
+            return {"message":"Account created successfully"}       
 
     def delete(self):
         try:
@@ -39,7 +42,7 @@ class CustomerEntity:
         else:
             customer = Customer.update(plan=self.plan, renewal_date=self.renewal_date).where(Customer.email_address==self.email)
             customer.execute()
-            return  {"message":"Create Customer Created Successfully"}
+            return  {"message":"Your plan has been upgraded Successfully"}
 
 
 class WebsiteEntity:
@@ -57,7 +60,6 @@ class WebsiteEntity:
             return {"message":"Customer does not exist"}
         
         website_count = Website.select().where(Website.url==self.url).count()
-        print(website_count, customer.plan.quantity)
         if customer.plan.quantity != 0 and customer.plan.quantity > website_count and customer.renewal_date!=None:
             website =  Website(url=self.url, customer=self.customer)
             website.save()
@@ -77,13 +79,11 @@ class WebsiteEntity:
         else:
             return {"message":"Sorry, you can't add more websites, your have exceeded your subscription limit"}
 
- 
-
-
     def delete(self):
         try:
             Website.get(url=self.url)
-            Website.delete().where(Website.customer==self.customer).execute()
+            if Website.delete().where(Website.customer==self.customer).execute():
+                return {"message":"Website deleted successfully"}
         except DoesNotExist:
             if DoesNotExist:
                 return {"message":"Website does not exist"}
@@ -146,48 +146,51 @@ The input here will generally be either from a select input tag or any other ui 
 However, for this test, I am allowing the user to type the name of the plan by hand.
 """
 
-def create_customer():
-    package = input("Choose a Package: single, plus or infinite:")
-    try:
-        plan =  Plan.get(name=package)
-    except DoesNotExist:
-        return {"message":"The package you selected does not exist"}
-    else:
-        customer =  CustomerEntity("Eze Sunday", "naira123?", "mailstoeze@gmail.com", plan.id, "2020-02-21 06:35:45.658505" )
-        create = customer.create()
-        print(create["message"])
+# def create_customer():
+#     package = input("Choose a Package: single, plus or infinite:")
+#     try:
+#         plan =  Plan.get(name=package)
+#     except DoesNotExist:
+#         return {"message":"The package you selected does not exist"}
+#     else:
+#         customer =  CustomerEntity("Eze Sunday", "naira123?", "mailstoeze@gmail.com", plan.id, "2020-02-21 06:35:45.658505" )
+#         create = customer.create()
+#         print(create["message"])
 
-def delete_customer():
-    customer =  CustomerEntity("Eze Sunday", "naira123?", "mailstoeze@gmail.com", 5, "2020-02-21 06:35:45.658505" )
-    delete = customer.delete()
-    print(delete["message"])
-
-
-def upgrade_plan():
-    package = input("Choose a Package: single, plus or infinite:")
-    try:
-        plan =  Plan.get(name=package)
-    except DoesNotExist:
-        print("The package you selected does not exist")
-    else:
-        customer =  CustomerEntity("Eze Sunday", "naira123?", "mailstoeze@gmail.com", plan.id, "2030-02-21 06:35:45.658505" )
-        upgrade = customer.upgrade()
-        print(upgrade["message"])
+# def delete_customer():
+#     customer =  CustomerEntity("Eze Sunday", "naira123?", "mailstoeze@gmail.com", 5, "2020-02-21 06:35:45.658505" )
+#     delete = customer.delete()
+#     print(delete["message"])
 
 
-def delete_website():
-    website = WebsiteEntity("eze.com", 1)
-    delete = website.delete()
-    print(delete["message"])
+# def upgrade_plan():
+#     package = input("Choose a Package: single, plus or infinite:")
+#     try:
+#         plan =  Plan.get(name=package)
+#     except DoesNotExist:
+#         print("The package you selected does not exist")
+#     else:
+#         customer =  CustomerEntity("Eze Sunday", "naira123?", "mailstoeze@gmail.com", plan.id, "2030-02-21 06:35:45.658505" )
+#         upgrade = customer.upgrade()
+#         print(upgrade["message"])
 
-website = WebsiteEntity("eze.com", 2)
-update = website.create()
-print(update["message"])
+
+# def delete_website():
+#     website = WebsiteEntity("eze.com", 1)
+#     delete = website.delete()
+#     print(delete["message"])
+
+# website = WebsiteEntity("eze.com", 2)
+# update = website.create()
+# print(update["message"])
 
 
-plan = PlanEntity("booster", 89, 5)
-create = plan.create()
-print(create["message"])
+# plan = PlanEntity("booster", 89, 5)
+# create = plan.create()
+# print(create["message"])
+
+# customer = CustomerEntity("Bassey", "naira123?", "mailsforeze@gmail.com", 5, "2020-02-21 06:35:45.658505")
+# print(customer.create())
 
 
 
