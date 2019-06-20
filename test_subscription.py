@@ -83,8 +83,8 @@ class DeletePlanTest(unittest.TestCase):
         self.assertEqual("Plan deleted successfully", self.plan.delete()["message"])
 
     
-class ExpirePlanTest(unittest.TestCase):
-    
+
+
 
 
 
